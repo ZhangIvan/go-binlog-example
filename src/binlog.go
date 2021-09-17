@@ -30,6 +30,7 @@ func (h *binlogHandler) OnRow(e *canal.RowsEvent) error {
 	for i := n; i < len(e.Rows); i += k {
 
 		key := e.Table.Schema + "." + e.Table.Name
+		fmt.Printf("监听的表key = %s \n", key)
 
 		switch key {
 		case User{}.SchemaName() + "." + User{}.TableName():
@@ -39,11 +40,14 @@ func (h *binlogHandler) OnRow(e *canal.RowsEvent) error {
 			case canal.UpdateAction:
 				oldUser := User{}
 				h.GetBinLogData(&oldUser, e, i-1)
-				fmt.Printf("User %d name changed from %s to %s\n", user.Id, oldUser.Name, user.Name)
+				fmt.Printf("检测到表%s Id=%d is changed from %+v\n to %+v \n", e.Table.Name, user.Id, oldUser, user)
+
 			case canal.InsertAction:
-				fmt.Printf("User %d is created with name %s\n", user.Id, user.Name)
+				fmt.Printf("检测到表%s Id=%d is created with %+v \n", e.Table.Name, user.Id, user)
+
 			case canal.DeleteAction:
-				fmt.Printf("User %d is deleted with name %s\n", user.Id, user.Name)
+				fmt.Printf("检测到表%s Id=%d is deleted with %s\n", e.Table.Name, user.Id, user.Title)
+
 			default:
 				fmt.Printf("Unknown action")
 			}
@@ -70,7 +74,8 @@ func binlogListener() {
 
 func getDefaultCanal() (*canal.Canal, error) {
 	cfg := canal.NewDefaultConfig()
-	cfg.Addr = fmt.Sprintf("%s:%d", "mariadb", 3307)
+	//cfg.Addr = fmt.Sprintf("%s:%d", "mariadb", 3307)
+	cfg.Addr = fmt.Sprintf("%s:%d", "127.0.0.1", 3308)
 	cfg.User = "root"
 	cfg.Password = "root"
 	cfg.Flavor = "mysql"

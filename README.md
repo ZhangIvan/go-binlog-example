@@ -1,4 +1,5 @@
 ### Golang binglog example project
+* FORK https://github1s.com/JackShadow/go-binlog-example
 
 tested on go1.11.2 and mariadb10.2 (binlog format must be 'raw')
 In binlog.go change with your connection data
